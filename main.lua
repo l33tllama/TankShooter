@@ -7,6 +7,9 @@ local x, y = 0
 local tankW, tankH = 0
 local tankRot = 0
 local tankSpd = 100
+local fps_delay = 0.5
+local dt_count = 0
+local last_fps = 0
 
 function love.load()
   tankImg = love.graphics.newImage("res/img/tank.png")
@@ -14,10 +17,25 @@ function love.load()
   tankH = tankImg:getHeight()
 end
 
+function round(dt, num, idp)
+  if dt_count <= 0 then
+    local mult = 10^(idp or 0)
+    last_fps = math.floor(num * mult + 0.5) / mult
+    dt_count = fps_delay
+  end
+  dt_count = dt_count - dt
+  return last_fps
+end
+
 function love.update(dt)
+  
+  
   if love.keyboard.isDown("escape") == true then
     love.event.quit()
   end
+  
+  round(dt, 1/dt, 2)
+  
   local twoKeys = false
   if love.keyboard.isDown('w') == true and love.keyboard.isDown('d') == true then
     tankY = tankY - tankSpd * dt * 0.707
@@ -56,14 +74,15 @@ function love.update(dt)
     end 
   end
   
-  x, y = love.mouse.getPosition()
-  
-  gdt = dt
+  -- TODO: move turret with mouse..
+  -- x, y = love.mouse.getPosition()
+
 end
 
 
+
 function love.draw()
-  love.graphics.print("DeltaTime: " .. gdt, 10, 0)
+  love.graphics.print("FPS: " .. last_fps , 2, 2)
   love.graphics.push()
   love.graphics.translate(tankX + tankW / 2, tankY + tankH / 2)
   love.graphics.rotate(tankRot)
