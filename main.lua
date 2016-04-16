@@ -1,8 +1,12 @@
 
+require('luarocks.loader')
+class = require('middleclass')
+require('lib/leos_ecs')
+
 gdt = 0
 
 local tankImg
-local tankX, tankY = 300, 300
+local tankX, tankY = 32, 32
 local x, y = 0
 local tankW, tankH = 0
 local tankRot = 0
@@ -11,10 +15,19 @@ local fps_delay = 0.5
 local dt_count = 0
 local last_fps = 0
 
+local fixed_res = {x = 256, y = 192}
+
+local scale = {}
+
 function love.load()
-  tankImg = love.graphics.newImage("res/img/tank.png")
+  tankImg = love.graphics.newImage("res/img/tank_32px.png")
+  tankImg:setFilter("nearest", "nearest")
+  --Font:setFilter("nearest", "nearest")
   tankW = tankImg:getWidth()
   tankH = tankImg:getHeight()
+  scale.x = love.graphics.getWidth() / fixed_res.x
+  scale.y = love.graphics.getHeight() / fixed_res.y
+  --love.window.setMode(fixed_res.x, fixed_res.y)
 end
 
 function round(dt, num, idp)
@@ -28,8 +41,7 @@ function round(dt, num, idp)
 end
 
 function love.update(dt)
-  
-  
+    
   if love.keyboard.isDown("escape") == true then
     love.event.quit()
   end
@@ -63,7 +75,7 @@ function love.update(dt)
       tankY = tankY - tankSpd * dt
       tankRot = 0
     elseif love.keyboard.isDown('d') == true then
-      tankX = tankX + tankSpd * dt
+      tankX = tankX + tankSpd *  dt
       tankRot = math.pi / 2
     elseif love.keyboard.isDown('s') == true then
       tankY = tankY + tankSpd * dt
@@ -82,11 +94,14 @@ end
 
 
 function love.draw()
-  love.graphics.print("FPS: " .. last_fps , 2, 2)
+  
   love.graphics.push()
+  love.graphics.scale(scale.x, scale.y)
+  love.graphics.print("FPS: " .. last_fps , 2, 2)
   love.graphics.translate(tankX + tankW / 2, tankY + tankH / 2)
   love.graphics.rotate(tankRot)
   love.graphics.translate(-tankX - tankW / 2, -tankY - tankH / 2)
   love.graphics.draw(tankImg, tankX, tankY)
   love.graphics.pop()
+  
 end
