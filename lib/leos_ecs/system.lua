@@ -1,5 +1,5 @@
 -- basic system part of ECS
-local System = class('System')
+local system = class('System')
 
 function system:initialize()
   self.targets = {}

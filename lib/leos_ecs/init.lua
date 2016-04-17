@@ -26,6 +26,7 @@ end
 function ecs:removeEntity(entity)
   self.entites[entity.id].alive = false
   self.entites[entity.id] = nil
+end
 
 function ecs:addSystem(system)
   List.add(self.systems_list, system)
