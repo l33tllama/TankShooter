@@ -15,7 +15,9 @@ local ecs = class('Systems')
 
 function ecs:initialize()
   self.systems_list = List.new()
-  self.entities = {}
+  self.systems_list["update"] = List.new()
+  self.systems_list["draw"] = List.new()
+  self.entities = List.new()
 end
 
 function ecs:addEntity(entity)
@@ -30,6 +32,11 @@ end
 
 function ecs:addSystem(system)
   List.add(self.systems_list, system)
+  if system.draw then
+    List.add(self.systems_list["draw"], system)
+  elseif system.update then
+    List.add(self.systtems_list["update"], system)
+  end
 end  
 
 function ecs:removeSystem(system)
