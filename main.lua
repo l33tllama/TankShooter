@@ -1,7 +1,12 @@
+-- Tank shooter
+require 'luarocks.loader'
+class = require 'middleclass'
 
-require('luarocks.loader')
-class = require('middleclass')
-require('lib/leos_ecs')
+ECS = require 'lib/leos_ecs'
+require 'lib/leos_ecs.component'
+Entity = require 'lib/leos_ecs.entity'
+require 'components.drawable'
+require 'components.position'
 
 gdt = 0
 
@@ -28,6 +33,19 @@ function love.load()
   scale.x = love.graphics.getWidth() / fixed_res.x
   scale.y = love.graphics.getHeight() / fixed_res.y
   --love.window.setMode(fixed_res.x, fixed_res.y)
+  
+  local Drawable, Position = Component.load({"Drawable", "Position"})
+  
+  ecs = ECS()
+  
+  tank = Entity()
+  tank:addComponent(Position(32, 32))
+  tank:addComponent(Drawable(tankImg, 0))
+  
+  ecs:addEntity(tank)
+  
+  --ecs:removeEntity(tank)
+  
 end
 
 function round(dt, num, idp)
@@ -42,6 +60,7 @@ end
 
 function love.update(dt)
     
+  ecs:update(dt)
   if love.keyboard.isDown("escape") == true then
     love.event.quit()
   end

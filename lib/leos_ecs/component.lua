@@ -21,6 +21,8 @@ function Component.create(name, fields, defaults)
   -- add to all table for retrieval later in creating systems
   Component.all[component.name] = component
   
+  return component
+  
 end
 
 

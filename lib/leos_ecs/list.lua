@@ -22,8 +22,18 @@ function List.remove(list, item_to_rm)
   end
 end
 
+function List.callClassFunction(list, func, args)
+  l = list
+  while l do
+    if l.item then
+      l.item:func(args)
+    end
+    l = l.next
+  end
+end
+
 function List.clear(list)
   list = {next = nil}
 end
 
-return list
+return List

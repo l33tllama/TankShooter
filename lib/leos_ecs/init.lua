@@ -5,8 +5,8 @@
 --]]
 
 local path = ...
-require(path .. '.system')
-local List = dofile(path .. '/list.lua')
+
+local List = require(path .. '.list')
 
 print("Hello from leos_ecs.lua")
 
@@ -18,16 +18,17 @@ function ecs:initialize()
   self.systems_list["update"] = List.new()
   self.systems_list["draw"] = List.new()
   self.entities = List.new()
+  print('Created ecs..')
 end
 
 function ecs:addEntity(entity)
   local entity_id = #self.entities + 1
   entity.id = entity_id
+  List.add(self.entities, entity)
 end
 
 function ecs:removeEntity(entity)
-  self.entites[entity.id].alive = false
-  self.entites[entity.id] = nil
+  List.remove(self.entities, entity)
 end
 
 function ecs:addSystem(system)
@@ -35,7 +36,7 @@ function ecs:addSystem(system)
   if system.draw then
     List.add(self.systems_list["draw"], system)
   elseif system.update then
-    List.add(self.systtems_list["update"], system)
+    List.add(self.systems_list["update"], system)
   end
 end  
 
@@ -44,9 +45,7 @@ function ecs:removeSystem(system)
 end
 
 function ecs:update(dt)
-  for system,_ in self.systems_list do
-    system:update(dt)
-  end
+  List.callClassFunction(self.systems_list["update"], update, dt)
 end
 
 return ecs
