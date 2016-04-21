@@ -18,5 +18,18 @@ function entity:removeComponent(component)
   end
 end
 
+function entity:get(name)
+  return self.components[name]
+end
+
+function entity:set(name)
+  local name = component.class.name
+  if self.components[name] == nil then
+      self:add(component)
+  else
+      self.components[name] = component
+  end
+end
+
 return entity
    

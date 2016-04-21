@@ -3,10 +3,12 @@ require 'luarocks.loader'
 class = require 'middleclass'
 
 ECS = require 'lib/leos_ecs'
-require 'lib/leos_ecs.component'
 Entity = require 'lib/leos_ecs.entity'
+
 require 'components.drawable'
 require 'components.position'
+local InputSystem = require 'systems.input'()
+local SpritePainter = require 'systems.sprite_painter'()
 
 gdt = 0
 
@@ -20,11 +22,15 @@ local fps_delay = 0.5
 local dt_count = 0
 local last_fps = 0
 
-local fixed_res = {x = 256, y = 192}
+local fixed_res = {x = 128, y = 96}
+local window_size = {width = 320, height = 240}
 
 local scale = {}
 
+love.window.setMode(window_size.width, window_size.height)
+
 function love.load()
+  
   tankImg = love.graphics.newImage("res/img/tank_32px.png")
   tankImg:setFilter("nearest", "nearest")
   --Font:setFilter("nearest", "nearest")
@@ -41,8 +47,10 @@ function love.load()
   tank = Entity()
   tank:addComponent(Position(32, 32))
   tank:addComponent(Drawable(tankImg, 0))
-  
+  ecs:addSystem(InputSystem)
+  ecs:addSystem(SpritePainter)
   ecs:addEntity(tank)
+  
   
   --ecs:removeEntity(tank)
   
@@ -111,6 +119,8 @@ function love.update(dt)
 end
 
 function love.draw()
+
+  ecs:draw()
   
   love.graphics.push()
   love.graphics.scale(scale.x, scale.y)
