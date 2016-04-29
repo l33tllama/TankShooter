@@ -5,9 +5,14 @@ class = require 'middleclass'
 ECS = require 'lib/leos_ecs'
 Entity = require 'lib/leos_ecs.entity'
 
+-- Load components
 require 'components.drawable'
 require 'components.position'
-local InputSystem = require 'systems.input'()
+require 'components.scaleable'
+require 'components.player_speed'
+
+-- Load systems
+local PlayerMover = require 'systems.player_mover'()
 local SpritePainter = require 'systems.sprite_painter'()
 
 gdt = 0
@@ -40,17 +45,19 @@ function love.load()
   scale.y = love.graphics.getHeight() / fixed_res.y
   --love.window.setMode(fixed_res.x, fixed_res.y)
   
-  local Drawable, Position = Component.load({"Drawable", "Position"})
+  local Drawable, Position, Scaleable, PlayerSpeed = Component.load({"Drawable", "Position",
+   "Scaleable", "PlayerSpeed"})
   
   ecs = ECS()
   
-  tank = Entity()
+  local tank = Entity()
+  tank:addComponent(Scaleable(0.5, 0.5))
   tank:addComponent(Position(32, 32))
   tank:addComponent(Drawable(tankImg, 0))
-  ecs:addSystem(InputSystem)
+  tank:addComponent(PlayerSpeed(50))
+  ecs:addSystem(PlayerMover)
   ecs:addSystem(SpritePainter)
   ecs:addEntity(tank)
-  
   
   --ecs:removeEntity(tank)
   
@@ -69,66 +76,15 @@ end
 function love.update(dt)
     
   ecs:update(dt)
+  
   if love.keyboard.isDown("escape") == true then
     love.event.quit()
   end
   
   round(dt, 1/dt, 2)
-  
-  local twoKeys = false
-  if love.keyboard.isDown('w') == true and love.keyboard.isDown('d') == true then
-    tankY = tankY - tankSpd * dt * 0.707
-    tankX = tankX + tankSpd * dt * 0.707
-    tankRot = math.pi / 4
-    twoKeys = true
-  elseif  love.keyboard.isDown('d') == true and love.keyboard.isDown('s') == true then
-    tankY = tankY + tankSpd * dt * 0.707
-    tankX = tankX + tankSpd * dt * 0.707
-    tankRot = math.pi * 0.75
-    twoKeys = true
-  elseif  love.keyboard.isDown('s') == true and love.keyboard.isDown('a') == true then
-    tankY = tankY + tankSpd * dt * 0.707
-    tankX = tankX - tankSpd * dt * 0.707
-    tankRot = math.pi  * 1.25
-    twoKeys = true
-  elseif  love.keyboard.isDown('a') == true and love.keyboard.isDown('w') == true then
-    tankY = tankY - tankSpd * dt * 0.707
-    tankX = tankX - tankSpd * dt * 0.707
-    tankRot = math.pi  * 1.75
-    twoKeys = true
-  end
-  if not twoKeys == true then
-    if love.keyboard.isDown("w") == true then
-      tankY = tankY - tankSpd * dt
-      tankRot = 0
-    elseif love.keyboard.isDown('d') == true then
-      tankX = tankX + tankSpd *  dt
-      tankRot = math.pi / 2
-    elseif love.keyboard.isDown('s') == true then
-      tankY = tankY + tankSpd * dt
-      tankRot = math.pi
-    elseif love.keyboard.isDown('a') == true then
-      tankX = tankX - tankSpd * dt
-      tankRot = 1.5 * math.pi
-    end 
-  end
-  
-  -- TODO: move turret with mouse..
-  -- x, y = love.mouse.getPosition()
 
 end
 
 function love.draw()
-
   ecs:draw()
-  
-  love.graphics.push()
-  love.graphics.scale(scale.x, scale.y)
-  love.graphics.print("FPS: " .. last_fps , 2, 2)
-  love.graphics.translate(tankX + tankW / 2, tankY + tankH / 2)
-  love.graphics.rotate(tankRot)
-  love.graphics.translate(-tankX - tankW / 2, -tankY - tankH / 2)
-  love.graphics.draw(tankImg, tankX, tankY)
-  love.graphics.pop()
-  
 end
