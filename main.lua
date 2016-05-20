@@ -10,10 +10,13 @@ require 'components.drawable'
 require 'components.position'
 require 'components.scaleable'
 require 'components.player_speed'
+require 'components.animated'
+require 'components.rotation'
 
 -- Load systems
 local PlayerMover = require 'systems.player_mover'()
 local SpritePainter = require 'systems.sprite_painter'()
+local Animation = require 'systems.animation'()
 
 gdt = 0
 
@@ -36,8 +39,10 @@ love.window.setMode(window_size.width, window_size.height)
 
 function love.load()
   
-  tankImg = love.graphics.newImage("res/img/tank_32px.png")
+  tankImg = love.graphics.newImage("res/img/tank-base.png")
   tankImg:setFilter("nearest", "nearest")
+  tankBaseSheet = love.graphics.newImage("res/img/tank-base-sheet.png")
+  tankBaseSheet:setFilter("nearest", "nearest")
   --Font:setFilter("nearest", "nearest")
   tankW = tankImg:getWidth()
   tankH = tankImg:getHeight()
@@ -47,16 +52,20 @@ function love.load()
   
   local Drawable, Position, Scaleable, PlayerSpeed = Component.load({"Drawable", "Position",
    "Scaleable", "PlayerSpeed"})
+  local Animated, Rotation = Component.load({"Animated", "Rotation"})
   
   ecs = ECS()
   
   local tank = Entity()
+  --tank:addComponent(Drawable(tankImg, 0))
   tank:addComponent(Scaleable(0.5, 0.5))
   tank:addComponent(Position(32, 32))
-  tank:addComponent(Drawable(tankImg, 0))
+  tank:addComponent(Rotation(0, 45))
+  tank:addComponent(Animated(tankBaseSheet, 3, 3, 32, 32, 1))
   tank:addComponent(PlayerSpeed(50))
   ecs:addSystem(PlayerMover)
-  ecs:addSystem(SpritePainter)
+  --ecs:addSystem(SpritePainter)
+  ecs:addSystem(Animation)
   ecs:addEntity(tank)
   
   --ecs:removeEntity(tank)
